@@ -3,7 +3,7 @@ import requests
 import concurrent.futures
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, Dispatcher
+from telegram.ext import Updater, CommandHandler, CallbackContext
 
 # Load environment variables from .env file
 load_dotenv()
