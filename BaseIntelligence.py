@@ -2,7 +2,7 @@ import os
 import requests
 import concurrent.futures
 from dotenv import load_dotenv
-from telegram import Update
+from telegram import Update, Bot
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 # Load environment variables from .env file
@@ -192,35 +192,41 @@ def format_value(value):
     except ValueError:
         return value
 
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Welcome to the Token Info Bot! Use /search <contract_address> to get token details.')
+
 def search(update: Update, context: CallbackContext) -> None:
-    token_address = ' '.join(context.args)
-    endpoints = ['', '/price', '/info', '/audit', '/locks']
+    token_address = context.args[0] if context.args else None
+    if token_address:
+        endpoints = ['', '/price', '/info', '/audit', '/locks']
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future_to_endpoint = {executor.submit(get_token_data, token_address, endpoint): endpoint for endpoint in endpoints}
+            token_data = {}
+            for future in concurrent.futures.as_completed(future_to_endpoint):
+                endpoint = future_to_endpoint[future]
+                try:
+                    data = future.result()
+                    if data:
+                        print(f"Debug: Data received for {endpoint}")
+                        token_data.update(data)
+                except Exception as exc:
+                    print(f'{endpoint} generated an exception: {exc}')
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future_to_endpoint = {executor.submit(get_token_data, token_address, endpoint): endpoint for endpoint in endpoints}
-        token_data = {}
-        for future in concurrent.futures.as_completed(future_to_endpoint):
-            endpoint = future_to_endpoint[future]
-            try:
-                data = future.result()
-                if data:
-                    print(f"Debug: Data received for {endpoint}")
-                    token_data.update(data)
-            except Exception as exc:
-                print(f'{endpoint} generated an exception: {exc}')
+        pool_address = get_pool_address(token_address)
+        pool_price_data = None
+        if pool_address:
+            pool_price_data = get_pool_price_data(pool_address)
 
-    pool_address = get_pool_address(token_address)
-    pool_price_data = None
-    if pool_address:
-        pool_price_data = get_pool_price_data(pool_address)
-    
-    result = print_and_store_token_data(token_data, token_address, pool_price_data)
-    update.message.reply_text(result)
+        result = print_and_store_token_data(token_data, token_address, pool_price_data)
+        update.message.reply_text(result)
+    else:
+        update.message.reply_text('Please provide a contract address.')
 
-def main():
-    updater = Updater(TELEGRAM_BOT_TOKEN)
+def main() -> None:
+    updater = Updater(token=TELEGRAM_BOT_TOKEN)
     dispatcher = updater.dispatcher
 
+    dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("search", search))
 
     updater.start_polling()
