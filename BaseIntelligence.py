@@ -148,18 +148,17 @@ def print_and_store_token_data(data, token_address, pool_price_data):
 
     # Generate the result message
     result = (
-        f"Name: {token_info['name']}\n"
+        f"📑 Name: {token_info['name']}\n"
         f"🔍 Symbol: {token_info['symbol']}\n"
-        f"Website: {token_info['website']}\n"
-        f"Twitter: {token_info['twitter']}\n"
-        f"Px: ${format_value(token_info['price'])}\n"
-        f"Market cap: ${format_value(token_info['market cap'])}\n"
-        f"Holders: {format_value(token_info['holders'])}\n"
-        f"Locked tokens: {format_value(token_info['locked tokens'])}\n"
-        f"Pool Price: {format_value(token_info['pool_price'])}\n"
-        f"\nPrice change 1h: {token_info['price_change_1h']}\n"
-        f"Price change 6h: {token_info['price_change_6h']}\n"
-        f"Price change 24h: {token_info['price_change_24h']}\n"
+        f"\n🕸️ Website: {token_info['website']}\n"
+        f"🐥 Twitter: {token_info['twitter']}\n"
+        f"\n💰 Px: ${format_value(token_info['price'])}\n"
+        f"💲 Market cap: ${format_value(token_info['market cap'])}\n"
+        f"✊🏼 Holders: {format_value(token_info['holders'])}\n"
+        f"🔥 Locked tokens: {format_value(token_info['locked tokens'])}\n"
+        f"\n📈 Px change 1h: {token_info['price_change_1h']}\n"
+        f"📈 Px change 6h: {token_info['price_change_6h']}\n"
+        f"📈 Px change 24h: {token_info['price_change_24h']}\n"
         f"\nAudit Information:\n" +
         "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address})\n"
