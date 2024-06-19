@@ -174,7 +174,7 @@ def calculate_percentage_change(current_price, previous_price):
         if previous_price == 0:
             return 'N/A'
         change = ((current_price - previous_price) / previous_price) * 100
-        return f"{change:.0f}%"
+        return f"{change:.1f}%"
     except ValueError:
         return 'N/A'
 
@@ -183,7 +183,7 @@ def format_value(value):
         if value is None or value == 'N/A':
             return 'N/A'
         value = float(value)
-        return f"{value:,.6f}" if value < 1 else f"{value:,.1f}"
+        return f"{value:,.6f}" if value < 1 else f"{value:,.0f}"
     except ValueError:
         return value
 
