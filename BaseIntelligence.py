@@ -2,8 +2,8 @@ import os
 import requests
 import concurrent.futures
 from dotenv import load_dotenv
-from telegram import Update, Bot
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackContext
+from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ApplicationBuilder
 
 # Load environment variables from .env file
 load_dotenv()
