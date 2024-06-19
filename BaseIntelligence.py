@@ -2,14 +2,17 @@ import os
 import requests
 import concurrent.futures
 from dotenv import load_dotenv
-from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import ApplicationBuilder
+from telegram import Update, Bot
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackContext
+import logging
 
 # Load environment variables from .env file
 load_dotenv()
 
 DEXTOOLS_API_KEY = os.getenv('DEXTOOLS_API_KEY')
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+logging.basicConfig(level=logging.INFO)
 
 def get_token_data(token_address, endpoint=''):
     api_key = DEXTOOLS_API_KEY
@@ -143,6 +146,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
             if endpoint == '/price':
                 token_info['pool_price'] = endpoint_data.get('price', 'N/A')
 
+    # Generate the result message
     result = (
         f"Name: {token_info['name']}\n"
         f"🔍 Symbol: {token_info['symbol']}\n"
@@ -153,22 +157,14 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"Holders: {format_value(token_info['holders'])}\n"
         f"Locked tokens: {format_value(token_info['locked tokens'])}\n"
         f"Pool Price: {format_value(token_info['pool_price'])}\n"
-        f"Price change 1h: {token_info['price_change_1h']}\n"
+        f"\nPrice change 1h: {token_info['price_change_1h']}\n"
         f"Price change 6h: {token_info['price_change_6h']}\n"
         f"Price change 24h: {token_info['price_change_24h']}\n"
-        f"\nAudit Information:\n"
+        f"\nAudit Information:\n" +
+        "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
+        f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address})\n"
+        f"\n**Contract Address:** {token_address}"
     )
-
-    for key, value in token_info['audit'].items():
-        result += f"{key}: {value}\n"
-
-    result += (
-        f"\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | "
-        f"[DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | "
-        f"[Basescan](https://basescan.org/address/{token_address})\n"
-        f"\n**Contract Address:** {token_address}\n"
-    )
-
     return result
 
 def calculate_percentage_change(current_price, previous_price):
@@ -195,11 +191,11 @@ def format_value(value):
 async def handle_search(update: Update, context: CallbackContext) -> None:
     token_address = context.args[0] if context.args else None
     if not token_address:
-        await update.message.reply_text('Please provide a contract address. Usage: /search <contract_address>')
+        await update.message.reply_text('Please provide a contract address.')
         return
 
     endpoints = ['', '/price', '/info', '/audit', '/locks']
-
+    
     # Run the requests concurrently
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_to_endpoint = {executor.submit(get_token_data, token_address, endpoint): endpoint for endpoint in endpoints}
@@ -218,16 +214,17 @@ async def handle_search(update: Update, context: CallbackContext) -> None:
     pool_price_data = None
     if pool_address:
         pool_price_data = get_pool_price_data(pool_address)
-
+    
     result = print_and_store_token_data(token_data, token_address, pool_price_data)
     await update.message.reply_text(result, parse_mode='Markdown')
 
 def main() -> None:
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
 
-    application.add_handler(CommandHandler("search", handle_search))
+    search_handler = CommandHandler('search', handle_search)
+    application.add_handler(search_handler)
 
     application.run_polling()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
