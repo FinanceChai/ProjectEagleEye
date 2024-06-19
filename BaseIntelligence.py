@@ -218,7 +218,7 @@ def search(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(result)
 
 def main():
-    updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
+    updater = Updater(TELEGRAM_BOT_TOKEN)
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("search", search))
