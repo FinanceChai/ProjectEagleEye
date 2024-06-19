@@ -124,18 +124,17 @@ def print_and_store_token_data(data, token_address, pool_price_data):
                 token_info['holders'] = endpoint_data.get('holders', 'N/A')
             if endpoint == '/audit':
                 token_info['audit'] = {
-                    'isOpenSource': endpoint_data.get('isOpenSource', 'N/A'),
-                    'isHoneypot': endpoint_data.get('isHoneypot', 'N/A'),
-                    'isMintable': endpoint_data.get('isMintable', 'N/A'),
-                    'isProxy': endpoint_data.get('isProxy', 'N/A'),
-                    'slippageModifiable': endpoint_data.get('slippageModifiable', 'N/A'),
-                    'isBlacklisted': endpoint_data.get('isBlacklisted', 'N/A'),
-                    'sellTax': endpoint_data.get('sellTax', {}),
-                    'buyTax': endpoint_data.get('buyTax', {}),
-                    'isContractRenounced': endpoint_data.get('isContractRenounced', 'N/A'),
-                    'isPotentiallyScam': endpoint_data.get('isPotentiallyScam', 'N/A'),
-                    'updatedAt': endpoint_data.get('updatedAt', 'N/A')
-                }
+                    '📄 isOpenSource': endpoint_data.get('isOpenSource', 'N/A'),
+                    '🍯 isHoneypot': endpoint_data.get('isHoneypot', 'N/A'),
+                    '🍃 isMintable': endpoint_data.get('isMintable', 'N/A'),
+                    '👯 isProxy': endpoint_data.get('isProxy', 'N/A'),
+                    '🥿 slippageModifiable': endpoint_data.get('slippageModifiable', 'N/A'),
+                    '👎🏼 isBlacklisted': endpoint_data.get('isBlacklisted', 'N/A'),
+                    '🫰🏼 sellTax': endpoint_data.get('sellTax', {}),
+                    '🫰🏼 buyTax': endpoint_data.get('buyTax', {}),
+                    '🔨 isContractRenounced': endpoint_data.get('isContractRenounced', 'N/A'),
+                    '🚫 isPotentiallyScam': endpoint_data.get('isPotentiallyScam', 'N/A'),
+                    }
             if endpoint == '/locks':
                 locked_tokens = sum(lock.get('amount', 0) for lock in endpoint_data.get('locks', []))
                 token_info['locked tokens'] = locked_tokens
