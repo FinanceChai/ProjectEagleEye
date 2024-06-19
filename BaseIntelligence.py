@@ -1,8 +1,17 @@
+import os
 import requests
 import concurrent.futures
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
+
+load_dotenv()
+
+DEXTOOLS_API_KEY = os.getenv('DEXTOOLS_API_KEY')
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 def get_token_data(token_address, endpoint=''):
-    api_key = 'us5f4YSURZ9gcv5Fdxeqj4HC8Ijin4ZR8b7ZSTQD'  # Replace with your actual API key
+    api_key = DEXTOOLS_API_KEY
     chain = 'base'  # The chain is always 'base'
     url = f'https://public-api.dextools.io/trial/v2/token/{chain}/{token_address}{endpoint}'
 
@@ -38,7 +47,7 @@ def get_pool_address(token_address):
     return None
 
 def get_pool_price_data(pool_address):
-    api_key = 'us5f4YSURZ9gcv5Fdxeqj4HC8Ijin4ZR8b7ZSTQD'  # Replace with your actual API key
+    api_key = DEXTOOLS_API_KEY
     chain = 'base'  # The chain is always 'base'
     url = f'https://public-api.dextools.io/trial/v2/pool/{chain}/{pool_address}/price'
 
@@ -133,30 +142,33 @@ def print_and_store_token_data(data, token_address, pool_price_data):
             if endpoint == '/price':
                 token_info['pool_price'] = endpoint_data.get('price', 'N/A')
 
-    # Print the results with proper formatting
-    print(f"Name: {token_info['name']}")
-    print(f"🔍 Symbol: {token_info['symbol']}")
-    print(f"Website: {token_info['website']}")
-    print(f"Twitter: {token_info['twitter']}")
-    print(f"Px: ${format_value(token_info['price'])}")
-    print(f"\nMarket cap: ${format_value(token_info['market cap'])}")
-    print(f"Holders: {format_value(token_info['holders'])}")
-    print(f"Locked tokens: {format_value(token_info['locked tokens'])}")
-    print(f"Pool Price: {format_value(token_info['pool_price'])}")
-    print(f"\nPrice change 1h: {token_info['price_change_1h']}")
-    print(f"Price change 6h: {token_info['price_change_6h']}")
-    print(f"Price change 24h: {token_info['price_change_24h']}")
+    result = (
+        f"Name: {token_info['name']}\n"
+        f"🔍 Symbol: {token_info['symbol']}\n"
+        f"Website: {token_info['website']}\n"
+        f"Twitter: {token_info['twitter']}\n"
+        f"Px: ${format_value(token_info['price'])}\n"
+        f"Market cap: ${format_value(token_info['market cap'])}\n"
+        f"Holders: {format_value(token_info['holders'])}\n"
+        f"Locked tokens: {format_value(token_info['locked tokens'])}\n"
+        f"Pool Price: {format_value(token_info['pool_price'])}\n"
+        f"Price change 1h: {token_info['price_change_1h']}\n"
+        f"Price change 6h: {token_info['price_change_6h']}\n"
+        f"Price change 24h: {token_info['price_change_24h']}\n"
+        f"\nAudit Information:\n"
+    )
 
-    # Print audit information
-    print(f"\nAudit Information:")
     for key, value in token_info['audit'].items():
-        print(f"{key}: {value}")
+        result += f"{key}: {value}\n"
 
-    # Print TweetScout, DEXTools, and Basescan links
-    print(f"\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address})")
+    result += (
+        f"\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | "
+        f"[DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | "
+        f"[Basescan](https://basescan.org/address/{token_address})\n"
+        f"\n**Contract Address:** {token_address}\n"
+    )
 
-    # Print contract address
-    print(f"\n**Contract Address:** {token_address}")
+    return result
 
 def calculate_percentage_change(current_price, previous_price):
     if previous_price is None or previous_price == 'N/A':
@@ -179,12 +191,17 @@ def format_value(value):
     except ValueError:
         return value
 
-# Example usage
-if __name__ == '__main__':
-    token_address = '0xe161be4a74ab8fa8706a2d03e67c02318d0a0ad6'  # Replace with the actual token address
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Send /search <contract address> to get token information.')
+
+def search(update: Update, context: CallbackContext) -> None:
+    if len(context.args) != 1:
+        update.message.reply_text('Usage: /search <contract address>')
+        return
+
+    token_address = context.args[0]
     endpoints = ['', '/price', '/info', '/audit', '/locks']
-    
-    # Run the requests concurrently
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_to_endpoint = {executor.submit(get_token_data, token_address, endpoint): endpoint for endpoint in endpoints}
         token_data = {}
@@ -202,5 +219,20 @@ if __name__ == '__main__':
     pool_price_data = None
     if pool_address:
         pool_price_data = get_pool_price_data(pool_address)
-    
-    print_and_store_token_data(token_data, token_address, pool_price_data)
+
+    result = print_and_store_token_data(token_data, token_address, pool_price_data)
+    update.message.reply_text(result)
+
+def main():
+    updater = Updater(TELEGRAM_BOT_TOKEN)
+
+    dp = updater.dispatcher
+
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("search", search))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
