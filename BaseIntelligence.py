@@ -82,6 +82,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         'symbol': 'N/A',
         'website': 'N/A',
         'twitter': 'N/A',
+        'telegram': 'N/A',
         'price': 'N/A',
         'market cap': 'N/A',
         'holders': 'N/A',
@@ -106,6 +107,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
                 token_info['symbol'] = endpoint_data.get('symbol', 'N/A')
                 token_info['website'] = endpoint_data.get('socialInfo', {}).get('website', 'N/A')
                 token_info['twitter'] = endpoint_data.get('socialInfo', {}).get('twitter', 'N/A')
+                token_info['telegram'] = endpoint_data.get('socialInfo', {}).get('telegram', 'N/A')
             if endpoint == '/price':
                 current_price = endpoint_data.get('price', 'N/A')
                 token_info['price'] = current_price
@@ -152,6 +154,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"🔍 Symbol: {token_info['symbol']}\n"
         f"\n🕸️ Website: {token_info['website']}\n"
         f"🐥 Twitter: {token_info['twitter']}\n"
+        f"📢 Telegram: {token_info['telegram']}\n"
         f"\n💰 Px: ${format_value(token_info['price'])}\n"
         f"💲 Market cap: ${format_value(token_info['market cap'])}\n"
         f"✊🏼 Holders: {format_value(token_info['holders'])}\n"
