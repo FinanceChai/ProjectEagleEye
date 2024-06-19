@@ -218,7 +218,7 @@ async def handle_search(update: Update, context: CallbackContext) -> None:
         pool_price_data = get_pool_price_data(pool_address)
     
     result = print_and_store_token_data(token_data, token_address, pool_price_data)
-    await update.message.reply_text(result, parse_mode='Markdown')
+    await update.message.reply_text(result, parse_mode='Markdown', disable_web_page_preview=True)
 
 def main() -> None:
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
