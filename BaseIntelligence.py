@@ -3,8 +3,9 @@ import requests
 import concurrent.futures
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext, Dispatcher
 
+# Load environment variables from .env file
 load_dotenv()
 
 DEXTOOLS_API_KEY = os.getenv('DEXTOOLS_API_KEY')
@@ -12,7 +13,7 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 def get_token_data(token_address, endpoint=''):
     api_key = DEXTOOLS_API_KEY
-    chain = 'base'  # The chain is always 'base'
+    chain = 'base'
     url = f'https://public-api.dextools.io/trial/v2/token/{chain}/{token_address}{endpoint}'
 
     headers = {
@@ -22,15 +23,15 @@ def get_token_data(token_address, endpoint=''):
 
     try:
         response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raise an error for bad status codes
+        response.raise_for_status()
         data = response.json()
         return {endpoint: data['data']}
     except requests.exceptions.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Specific HTTP error handling
+        print(f'HTTP error occurred: {http_err}')
         if response.content:
             print(f'Response content: {response.content}')
     except Exception as err:
-        print(f'Other error occurred: {err}')  # General error handling
+        print(f'Other error occurred: {err}')
         if response.content:
             print(f'Response content: {response.content}')
     return None
@@ -48,7 +49,7 @@ def get_pool_address(token_address):
 
 def get_pool_price_data(pool_address):
     api_key = DEXTOOLS_API_KEY
-    chain = 'base'  # The chain is always 'base'
+    chain = 'base'
     url = f'https://public-api.dextools.io/trial/v2/pool/{chain}/{pool_address}/price'
 
     headers = {
@@ -58,16 +59,16 @@ def get_pool_price_data(pool_address):
 
     try:
         response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raise an error for bad status codes
+        response.raise_for_status()
         data = response.json()
         print(f"Debug: Pool price data received: {data}")
         return {'/price': data['data']}
     except requests.exceptions.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Specific HTTP error handling
+        print(f'HTTP error occurred: {http_err}')
         if response.content:
             print(f'Response content: {response.content}')
     except Exception as err:
-        print(f'Other error occurred: {err}')  # General error handling
+        print(f'Other error occurred: {err}')
         if response.content:
             print(f'Response content: {response.content}')
     return None
@@ -93,10 +94,10 @@ def print_and_store_token_data(data, token_address, pool_price_data):
     }
 
     if data:
-        print("Debug: Data received from API")  # Debug statement
+        print("Debug: Data received from API")
         for endpoint, endpoint_data in data.items():
-            print(f"Debug: Processing endpoint {endpoint}")  # Debug statement
-            print(f"Debug: Endpoint data: {endpoint_data}")  # Debug statement
+            print(f"Debug: Processing endpoint {endpoint}")
+            print(f"Debug: Endpoint data: {endpoint_data}")
             if endpoint == '':
                 token_info['name'] = endpoint_data.get('name', 'N/A')
                 token_info['symbol'] = endpoint_data.get('symbol', 'N/A')
@@ -135,10 +136,10 @@ def print_and_store_token_data(data, token_address, pool_price_data):
                 token_info['locked tokens'] = locked_tokens
 
     if pool_price_data:
-        print("Debug: Pool price data received from API")  # Debug statement
+        print("Debug: Pool price data received from API")
         for endpoint, endpoint_data in pool_price_data.items():
-            print(f"Debug: Processing pool price endpoint {endpoint}")  # Debug statement
-            print(f"Debug: Pool price endpoint data: {endpoint_data}")  # Debug statement
+            print(f"Debug: Processing pool price endpoint {endpoint}")
+            print(f"Debug: Pool price endpoint data: {endpoint_data}")
             if endpoint == '/price':
                 token_info['pool_price'] = endpoint_data.get('price', 'N/A')
 
@@ -191,15 +192,8 @@ def format_value(value):
     except ValueError:
         return value
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Send /search <contract address> to get token information.')
-
 def search(update: Update, context: CallbackContext) -> None:
-    if len(context.args) != 1:
-        update.message.reply_text('Usage: /search <contract address>')
-        return
-
-    token_address = context.args[0]
+    token_address = ' '.join(context.args)
     endpoints = ['', '/price', '/info', '/audit', '/locks']
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -210,7 +204,7 @@ def search(update: Update, context: CallbackContext) -> None:
             try:
                 data = future.result()
                 if data:
-                    print(f"Debug: Data received for {endpoint}")  # Debug statement
+                    print(f"Debug: Data received for {endpoint}")
                     token_data.update(data)
             except Exception as exc:
                 print(f'{endpoint} generated an exception: {exc}')
@@ -219,17 +213,15 @@ def search(update: Update, context: CallbackContext) -> None:
     pool_price_data = None
     if pool_address:
         pool_price_data = get_pool_price_data(pool_address)
-
+    
     result = print_and_store_token_data(token_data, token_address, pool_price_data)
     update.message.reply_text(result)
 
 def main():
-    updater = Updater(TELEGRAM_BOT_TOKEN)
+    updater = Updater(token=TELEGRAM_BOT_TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
 
-    dp = updater.dispatcher
-
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("search", search))
+    dispatcher.add_handler(CommandHandler("search", search))
 
     updater.start_polling()
     updater.idle()
