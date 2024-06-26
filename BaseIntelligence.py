@@ -164,12 +164,12 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"\nAudit Information:\n" +
         "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address}) | [BubbleMaps](https://app.bubblemaps.io/base/token/{token_address})\n"
-        f"\n**Contract Address:** {token_address}"
+        f"\n<b>Contract Address:\n</b> <code>{token_address}</code>"
     )
 
     keyboard = [
-        [InlineKeyboardButton("Banana Gun", url="https://t.me/BananaGunSniper_bot?start=ref_rubberd"),
-         InlineKeyboardButton("Prodigy bot", url="https://t.me/ProdigySniperBot?start=G7K13A")]
+        [InlineKeyboardButton("🍌 Banana Gun", url="https://t.me/BananaGunSniper_bot?start=ref_rubberd"),
+         InlineKeyboardButton("😎 Prodigy bot", url="https://t.me/ProdigySniperBot?start=G7K13A")]
     ]
     
     return result, InlineKeyboardMarkup(keyboard)
