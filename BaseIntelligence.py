@@ -156,7 +156,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"💲 Market cap: ${format_value(token_info['market cap'])}\n"
         f"✊🏼 Holders: {format_value(token_info['holders'])}\n"
         f"🔥 Locked tokens: {format_value(token_info['locked tokens'])}\n"
-        f"\n📈 Px change: 1hr - {token_info['price_change_1h']} | 6hr - {token_info['price_change_6h']} | 24hr - {token_info['price_change_24h']}\n"
+        f"\n📈 Px Change: 1hr: {token_info['price_change_1h']} | 6hr: {token_info['price_change_6h']} | 24hr: {token_info['price_change_24h']}\n"
         f"\nAudit Information:\n" +
         "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address}) | [BubbleMaps](https://app.bubblemaps.io/base/token/{token_address})\n"
