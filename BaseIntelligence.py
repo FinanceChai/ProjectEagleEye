@@ -151,15 +151,12 @@ def print_and_store_token_data(data, token_address, pool_price_data):
     result = (
         f"📑 Name: {token_info['name']}\n"
         f"🔍 Symbol: {token_info['symbol']}\n"
-        f"\n🕸️ [Website]({token_info['website']})\n"
-        f"🐥 [Twitter]({token_info['twitter']})\n"
-        f"📢 [Telegram]({token_info['telegram']})\n"
+        f"\n🕸️ [Website]({token_info['website']}) | 🐥 [Twitter]({token_info['twitter']}) | 📢 [Telegram]({token_info['telegram']})\n"
         f"\n💰 Px: ${format_value(token_info['price'])}\n"
         f"💲 Market cap: ${format_value(token_info['market cap'])}\n"
         f"✊🏼 Holders: {format_value(token_info['holders'])}\n"
-        f"\n📈 Px change 1h: {token_info['price_change_1h']}\n"
-        f"📈 Px change 6h: {token_info['price_change_6h']}\n"
-        f"📈 Px change 24h: {token_info['price_change_24h']}\n"
+        f"🔥 Locked tokens: {format_value(token_info['locked tokens'])}\n"
+        f"\n📈 Px change: 1hr - {token_info['price_change_1h']} | 6hr - {token_info['price_change_6h']} | 24hr - {token_info['price_change_24h']}\n"
         f"\nAudit Information:\n" +
         "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address}) | [BubbleMaps](https://app.bubblemaps.io/base/token/{token_address})\n"
