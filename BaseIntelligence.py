@@ -164,7 +164,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"\nAudit Information:\n" +
         "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address}) | [BubbleMaps](https://app.bubblemaps.io/base/token/{token_address})\n"
-        f"\n<b>Contract Address:\n</b> <code>{token_address}</code>"
+        f"\n<b>Contract Address:</b> <code>{token_address}</code>"
     )
 
     keyboard = [
@@ -223,7 +223,7 @@ async def handle_search(update: Update, context: CallbackContext) -> None:
         pool_price_data = get_pool_price_data(pool_address)
     
     result, keyboard = print_and_store_token_data(token_data, token_address, pool_price_data)
-    await update.message.reply_text(result, parse_mode='Markdown', disable_web_page_preview=True, reply_markup=keyboard)
+    await update.message.reply_text(result, parse_mode='HTML', disable_web_page_preview=True, reply_markup=keyboard)
 
 def main() -> None:
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
