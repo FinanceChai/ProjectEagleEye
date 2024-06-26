@@ -157,7 +157,6 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"\n💰 Px: ${format_value(token_info['price'])}\n"
         f"💲 Market cap: ${format_value(token_info['market cap'])}\n"
         f"✊🏼 Holders: {format_value(token_info['holders'])}\n"
-        f"🔥 Locked tokens: {format_value(token_info['locked tokens'])}\n"
         f"\n📈 Px change 1h: {token_info['price_change_1h']}\n"
         f"📈 Px change 6h: {token_info['price_change_6h']}\n"
         f"📈 Px change 24h: {token_info['price_change_24h']}\n"
