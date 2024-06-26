@@ -160,7 +160,7 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"\nAudit Information:\n" +
         "\n".join([f"{key}: {value}" for key, value in token_info['audit'].items()]) +
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address}) | [BubbleMaps](https://app.bubblemaps.io/base/token/{token_address})\n"
-        f"\nContract Address: **[{token_address}](https://basescan.org/address/{token_address})**"
+        f"\nContract Address: {token_address}"
     )
 
     keyboard = [
