@@ -2,7 +2,7 @@ import os
 import requests
 import concurrent.futures
 from dotenv import load_dotenv
-from telegram import Update, Bot
+from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackContext
 import logging
 
@@ -166,7 +166,13 @@ def print_and_store_token_data(data, token_address, pool_price_data):
         f"\n\n[TweetScout](https://app.tweetscout.io/search?q=apetardio) | [DEXTools](https://www.dextools.io/app/en/base/pair-explorer/{token_address}) | [Basescan](https://basescan.org/address/{token_address}) | [BubbleMaps](https://app.bubblemaps.io/base/token/{token_address})\n"
         f"\n**Contract Address:** {token_address}"
     )
-    return result
+
+    keyboard = [
+        [InlineKeyboardButton("Banana Gun", url="https://t.me/BananaGunSniper_bot?start=ref_rubberd"),
+         InlineKeyboardButton("Prodigy bot", url="https://t.me/ProdigySniperBot?start=G7K13A")]
+    ]
+    
+    return result, InlineKeyboardMarkup(keyboard)
 
 def calculate_percentage_change(current_price, previous_price):
     if previous_price is None or previous_price == 'N/A':
@@ -216,8 +222,8 @@ async def handle_search(update: Update, context: CallbackContext) -> None:
     if pool_address:
         pool_price_data = get_pool_price_data(pool_address)
     
-    result = print_and_store_token_data(token_data, token_address, pool_price_data)
-    await update.message.reply_text(result, parse_mode='Markdown', disable_web_page_preview=True)
+    result, keyboard = print_and_store_token_data(token_data, token_address, pool_price_data)
+    await update.message.reply_text(result, parse_mode='Markdown', disable_web_page_preview=True, reply_markup=keyboard)
 
 def main() -> None:
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
