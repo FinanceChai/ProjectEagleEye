@@ -151,9 +151,9 @@ def print_and_store_token_data(data, token_address, pool_price_data):
     result = (
         f"📑 Name: {token_info['name']}\n"
         f"🔍 Symbol: {token_info['symbol']}\n"
-        f"\n🕸️ Website: {token_info['website']}\n"
-        f"🐥 Twitter: {token_info['twitter']}\n"
-        f"📢 Telegram: {token_info['telegram']}\n"
+        f"\n🕸️ [Website]({token_info['website']})\n"
+        f"🐥 [Twitter]({token_info['twitter']})\n"
+        f"📢 [Telegram]({token_info['telegram']})\n"
         f"\n💰 Px: ${format_value(token_info['price'])}\n"
         f"💲 Market cap: ${format_value(token_info['market cap'])}\n"
         f"✊🏼 Holders: {format_value(token_info['holders'])}\n"
@@ -223,7 +223,7 @@ async def handle_search(update: Update, context: CallbackContext) -> None:
         pool_price_data = get_pool_price_data(pool_address)
     
     result, keyboard = print_and_store_token_data(token_data, token_address, pool_price_data)
-    await update.message.reply_text(result, parse_mode='HTML', disable_web_page_preview=True, reply_markup=keyboard)
+    await update.message.reply_text(result, parse_mode='Markdown', disable_web_page_preview=True, reply_markup=keyboard)
 
 def main() -> None:
     application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
